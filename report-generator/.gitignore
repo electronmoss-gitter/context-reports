@@ -1,0 +1,12 @@
+# common patterns
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.swp
+*.swo
+*.DS_Store
+.env
+.venv/
+venv/
+env/

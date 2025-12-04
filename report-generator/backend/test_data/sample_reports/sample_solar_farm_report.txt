@@ -1,0 +1,308 @@
+EARTHING STUDY REPORT
+SOLAR FARM INSTALLATION
+
+Project: Darling Downs 50MW Solar Farm
+Client: Queensland Renewable Energy Pty Ltd
+Project Number: ES-2023-078
+Date: 28 June 2023
+Prepared by: Michael Chen, CPEng
+
+
+EXECUTIVE SUMMARY
+
+This earthing study addresses the 132kV switching station and 33kV collection system for the proposed 50MW solar farm near Dalby, Queensland. The facility will connect to the Powerlink transmission network via a new 132kV line.
+
+The earthing design considers the unique challenges of solar farm installations, including:
+- Large geographical spread of equipment
+- Lightning exposure of solar arrays
+- Multiple voltage levels (132kV, 33kV, 1000V DC)
+- Sandy soil with high resistivity
+
+Soil resistivity measurements indicate highly resistive soil (450-850 Ωm), requiring an extensive earth electrode system to achieve acceptable earth resistance.
+
+Key Results:
+- 132kV switching station earth resistance: 1.85 Ω
+- Touch potential (switching station): 892 V (within 945 V limit)
+- Step potential (switching station): 2,180 V (within 2,890 V limit)
+- Array earthing: Individual electrode systems per inverter station
+- Lightning protection: Integrated with earthing system
+
+The proposed design meets AS 2067, IEEE 80, and AS/NZS 5033 requirements.
+
+
+SITE DESCRIPTION
+
+The solar farm site is located on rural agricultural land approximately 15km northwest of Dalby. The site area is 85 hectares with gentle slopes (maximum 5° gradient).
+
+Site Coordinates: -27.1234°S, 151.2345°E
+Elevation: 340m AGL
+
+Soil characteristics:
+- Type: Sandy loam over sandstone bedrock
+- Topsoil: 0.5-1.0m sandy loam
+- Subsoil: 1-3m weathered sandstone
+- Bedrock: 3m+ depth (highly resistive sandstone)
+
+The site experiences:
+- Annual lightning ground flash density: 4-6 flashes/km²/year (moderately high)
+- Summer temperatures: Up to 42°C
+- Winter minimums: Down to -2°C
+- Minimal flooding risk (elevated site)
+
+Water table is below 15m depth. No significant underground services on site.
+
+
+SOIL RESISTIVITY TESTING
+
+Testing conducted: 20-22 June 2023
+Method: Wenner four-probe
+Test locations: 4 locations across the site
+Weather: Dry conditions (15 days since rain)
+
+Switching Station Area Results:
+Spacing (m) | Reading 1 (Ωm) | Reading 2 (Ωm) | Average (Ωm)
+1.0         | 445            | 438            | 442
+2.0         | 520            | 498            | 509
+3.0         | 605            | 580            | 593
+5.0         | 720            | 695            | 708
+7.5         | 815            | 790            | 803
+10.0        | 850            | 825            | 838
+
+Two-Layer Model (Switching Station):
+- Upper layer (0-2.5m): 450 Ωm (sandy loam)
+- Lower layer (>2.5m): 850 Ωm (weathered sandstone)
+
+Array Area (typical):
+- Surface layer: 350-650 Ωm (variable due to topsoil variation)
+- Deep layer: 700-900 Ωm
+
+Note: High soil resistivity presents challenges for achieving low earth resistance. Design incorporates multiple deep electrodes and soil enhancement compounds.
+
+
+ELECTRICAL SYSTEM CONFIGURATION
+
+132kV Switching Station:
+- Voltage: 132kV
+- Fault level: 31.5 kA (3-phase)
+- Fault clearance: 0.3 seconds (fast protection)
+- Configuration: Air-insulated switchyard (AIS)
+- Equipment: 1 × 132kV line bay, 1 × 132kV transformer bay, isolators, circuit breakers
+
+33kV Collection System:
+- Voltage: 33kV
+- Fault level: 12.5 kA at main switchboard, decreasing with distance
+- Fault clearance: 0.5 seconds
+- Configuration: Cable reticulation to 10 inverter stations
+- Total cable length: ~8.5km
+
+DC System:
+- Array voltage: 1000V DC
+- Combiner boxes: Negative terminal earthed
+- Inverter capacity: 10 × 5MW inverters
+
+Protection:
+- 132kV: Distance protection, overcurrent, earth fault
+- 33kV: Overcurrent, earth fault (restricted and unrestricted)
+- DC: Insulation monitoring, residual current detection
+
+
+132kV SWITCHING STATION EARTHING
+
+Earth Grid Design:
+- Grid dimensions: 60m × 45m = 2,700 m²
+- Conductor: 120mm² bare copper
+- Mesh spacing: 5m × 5m
+- Burial depth: 0.8m
+- Total conductor length: 780m
+
+Deep Earth Electrodes:
+- Type: Copper-bonded steel rods
+- Diameter: 20mm (heavy duty for high fault currents)
+- Length: 6.0m each
+- Quantity: 24 rods
+- Installation: Driven vertically at grid intersections and equipment locations
+
+Supplementary Electrodes (due to high soil resistivity):
+- 6 × additional 10m deep bores with copper electrodes
+- Backfilled with bentonite/carbon enhancement compound
+- Located at grid perimeter
+- Connected via 95mm² copper conductor
+
+Surface Treatment:
+- 150mm crushed rock (ρ = 3,500 Ωm) over entire grid area
+- Prevents vegetation growth
+- Increases tolerable touch/step voltages
+- Provides mechanical protection
+
+
+EARTH RESISTANCE CALCULATIONS
+
+Switching Station (Computer Modeling - CYMGRD):
+
+Input Parameters:
+- Soil model: Two-layer (450/850 Ωm)
+- Grid area: 2,700 m²
+- Grid conductor: 780m @ 0.8m depth
+- Rods: 24 × 6m vertical + 6 × 10m deep electrodes
+- Surface layer: 0.15m @ 3,500 Ωm
+
+Results:
+- Earth resistance: 1.85 Ω
+- Maximum GPR: 58,275 V (at 31.5 kA fault)
+- Maximum touch potential: 892 V
+- Maximum step potential: 2,180 V
+
+Tolerance Calculations (IEEE 80):
+- Tolerable touch (0.3s, 70kg): Etouch = 945 V
+- Tolerable step (0.3s, 70kg): Estep = 2,890 V
+
+Safety Margins:
+- Touch potential: 892 / 945 = 94% utilization → ACCEPTABLE
+- Step potential: 2,180 / 2,890 = 75% utilization → ACCEPTABLE
+
+Note: High soil resistivity results in higher than ideal GPR and touch potentials, but still within safe limits due to crushed rock surface layer and fast fault clearance (0.3s).
+
+
+33kV INVERTER STATION EARTHING
+
+Each inverter station (10 total) has an individual earthing system:
+
+Earth Grid per Station:
+- Dimensions: 25m × 20m = 500 m²
+- Conductor: 70mm² bare copper
+- Mesh: 5m × 5m
+- Depth: 0.6m
+- Conductor length: 135m per station
+
+Electrodes per Station:
+- 8 × 3m copper-bonded rods
+- 2 × 6m deep rods at transformer location
+
+Calculated Earth Resistance per Station:
+- Typical: 3.5 - 5.0 Ω (varies with local soil conditions)
+- Maximum acceptable: 5.0 Ω
+
+All 10 inverter station earths are interconnected via:
+- 33kV cable metallic screens (bonded both ends)
+- Fiber optic cable metallic members
+- Results in parallel resistance of all station earths
+- Combined resistance at main switchboard: ~0.8 Ω
+
+Touch/step potentials at inverter stations are well within limits due to:
+- Lower fault currents (12.5 kA max, decreasing with distance)
+- Longer fault clearance time (0.5s) allows higher tolerable voltages
+- Personnel access restricted during fault conditions
+
+
+SOLAR ARRAY DC EARTHING
+
+Requirements per AS/NZS 5033:2014:
+- Each array string negative terminal bonded to earth
+- Inverter chassis bonded to AC earthing system
+- Array frames bonded together and to earth
+
+Implementation:
+- Array mounting structure bonded together (aluminum extrusion)
+- Earth connection every 50m along array rows
+- Connection to inverter station earth grid
+- Minimum conductor: 16mm² copper for DC bonding
+
+Lightning Protection:
+- Array structure inherently provides lightning capture
+- Array bonding system integrated with earthing
+- Surge protection devices (SPD) at inverter DC inputs
+- Equipotential bonding reduces induced voltages
+
+
+COMPLIANCE SUMMARY
+
+AS 2067:2016 - Substations and High Voltage Installations
+✓ Clause 4.3.2: Earth grid resistance ≤ 5Ω for 132kV station - COMPLIES (1.85Ω)
+✓ Clause 4.4: Touch/step potentials within limits - COMPLIES
+✓ Clause 4.5.3: Conductor sizing for fault current - COMPLIES (120mm²)
+
+AS/NZS 3000:2018 - Electrical Installations
+✓ Section 5.6: Earthing arrangements - COMPLIES
+✓ Table 5.1: Minimum earthing conductor sizes - COMPLIES
+
+AS/NZS 5033:2014 - Installation of Photovoltaic Arrays
+✓ Clause 4.3: Earthing of array structures - COMPLIES
+✓ Clause 4.4: Protection against indirect contact - COMPLIES
+
+IEEE 80-2013 - AC Substation Grounding
+✓ Design methodology - COMPLIES
+✓ Touch/step voltage calculations - COMPLIES
+✓ Mesh design - COMPLIES
+
+
+TESTING AND COMMISSIONING
+
+Earth Resistance Testing:
+1. 132kV switching station:
+   - Method: Fall-of-potential (3-point method)
+   - Target: ≤ 2.0 Ω
+   - Test current leads: 200m minimum spacing
+
+2. Each 33kV inverter station:
+   - Method: Fall-of-potential
+   - Target: ≤ 5.0 Ω per station
+   - Verify interconnection resistance
+
+3. Overall system:
+   - Verify continuity of all bonding connections
+   - Test resistance between inverter stations
+   - Measure step potentials at critical locations
+
+Acceptance Criteria:
+- 132kV station: R ≤ 2.0 Ω
+- 33kV stations: R ≤ 5.0 Ω each
+- All connections: < 1 Ω resistance
+- No open circuits in bonding system
+
+
+RECOMMENDATIONS
+
+1. Installation Sequencing:
+   - Install earth grid before equipment foundations
+   - Test grid resistance before equipment installation
+   - Document all connection locations with GPS coordinates
+
+2. Soil Treatment:
+   - Backfill deep electrodes with bentonite/carbon mixture
+   - Water treatment material periodically during dry periods
+   - Monitor resistance over first year, add electrodes if needed
+
+3. Lightning Protection:
+   - Install surge arresters at 132kV equipment
+   - SPDs at all 33kV switchboards
+   - DC SPDs at inverter inputs (already specified)
+
+4. Maintenance:
+   - Annual visual inspection of accessible connections
+   - Test earth resistance every 3 years minimum
+   - After any lightning strike, inspect and re-test affected areas
+
+5. Documentation:
+   - Maintain as-built drawings showing all earth electrode locations
+   - Record all test results
+   - Update study if system configuration changes
+
+
+CONCLUSION
+
+The earthing system design for Darling Downs Solar Farm provides adequate protection despite challenging high-resistivity soil conditions. The 132kV switching station earth resistance of 1.85 Ω, while higher than typical low-resistivity sites, is acceptable for this voltage class and achieves safe touch and step potentials.
+
+The distributed earthing approach for the 33kV inverter stations, interconnected via cable screens, provides an effective overall system. Solar array DC earthing integrates with the AC earthing to provide comprehensive lightning and fault protection.
+
+Implementation of the specified design and adherence to testing requirements will result in a safe, compliant installation suitable for the 50MW solar generation facility.
+
+
+Prepared by:
+Michael Chen, CPEng
+Senior Electrical Engineer - Renewables
+Date: 28 June 2023
+
+Reviewed by:
+Dr. Lisa Wong, CPEng FIEAust
+Principal Engineer - HV Systems
+Date: 30 June 2023

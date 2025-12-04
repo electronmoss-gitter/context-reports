@@ -1,0 +1,33 @@
+{
+  "project_name": "Darling Downs 50MW Solar Farm",
+  "client_name": "Queensland Renewable Energy Pty Ltd",
+  "site_address": "Rural Agricultural Land, 15km NW of Dalby QLD",
+  "project_number": "ES-2023-078",
+  "engineer_name": "Michael Chen, CPEng",
+  
+  "voltage_level": "132kV",
+  "fault_current_symmetrical": 31.5,
+  "fault_current_asymmetrical": 40.0,
+  "fault_clearance_time": 0.3,
+  "transformer_rating": "55 MVA",
+  
+  "soil_resistivity_measurements": [
+    {"depth": 1.0, "resistivity": 442.0},
+    {"depth": 2.0, "resistivity": 509.0},
+    {"depth": 3.0, "resistivity": 593.0},
+    {"depth": 5.0, "resistivity": 708.0},
+    {"depth": 7.5, "resistivity": 803.0},
+    {"depth": 10.0, "resistivity": 838.0}
+  ],
+  "soil_model_type": "two_layer",
+  "site_length": 60.0,
+  "site_width": 45.0,
+  
+  "target_grid_resistance": 2.0,
+  "touch_potential_limit": 945.0,
+  "step_potential_limit": 2890.0,
+  "earth_conductor_size": "120mm2",
+  
+  "project_type": "solar_farm",
+  "special_requirements": "High soil resistivity (450-850 Ohm-m). Lightning exposure (4-6 flashes/km²/year). Requires deep electrodes and soil enhancement. Integration with 33kV inverter collection system and 1000V DC array earthing per AS/NZS 5033."
+}

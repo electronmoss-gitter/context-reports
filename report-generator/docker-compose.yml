@@ -1,0 +1,32 @@
+# Docker Compose for Earthing Report Generator
+# NOTE: This is for future use when you're ready to containerize
+# For MVP, run directly with Python (see GETTING_STARTED.md)
+
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - VECTOR_DB_PATH=/app/data/vector_db
+      - HISTORICAL_REPORTS_PATH=/app/data/historical_reports
+      - OUTPUT_PATH=/app/output/generated_reports
+    volumes:
+      - ./backend/data:/app/data
+      - ./output:/app/output
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+
+# Future: Add frontend service when building UI
+#   frontend:
+#     build:
+#       context: ./frontend
+#       dockerfile: Dockerfile
+#     ports:
+#       - "3000:3000"
+#     depends_on:
+#       - api

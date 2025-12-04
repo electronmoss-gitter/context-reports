@@ -1,0 +1,33 @@
+{
+  "project_name": "Sunnybank Distribution Substation",
+  "client_name": "Energex Queensland", 
+  "site_address": "123 Creek Road, Sunnybank QLD 4109",
+  "project_number": "ES-2023-045",
+  "engineer_name": "John Smith, CPEng RPEQ",
+  
+  "voltage_level": "33kV",
+  "fault_current_symmetrical": 25.0,
+  "fault_current_asymmetrical": 31.25,
+  "fault_clearance_time": 0.5,
+  "transformer_rating": "20 MVA",
+  
+  "soil_resistivity_measurements": [
+    {"depth": 1.0, "resistivity": 145.0},
+    {"depth": 2.0, "resistivity": 152.0},
+    {"depth": 3.0, "resistivity": 165.0},
+    {"depth": 5.0, "resistivity": 185.0},
+    {"depth": 7.5, "resistivity": 198.0},
+    {"depth": 10.0, "resistivity": 215.0}
+  ],
+  "soil_model_type": "two_layer",
+  "site_length": 50.0,
+  "site_width": 40.0,
+  
+  "target_grid_resistance": 1.0,
+  "touch_potential_limit": 742.0,
+  "step_potential_limit": 2475.0,
+  "earth_conductor_size": "70mm2",
+  
+  "project_type": "substation",
+  "special_requirements": "Site bounded by residential properties. Water main along northern boundary. Good drainage with sandy clay soil. Water table at 8-10m depth."
+}
