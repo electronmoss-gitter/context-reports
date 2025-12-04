@@ -72,28 +72,28 @@ Follow the prompts to:
 ### Option 2: Manual Setup
 
 # 1. Set up environment
-cd backend
+cd backend 
 cp .env.example .env
 # Edit .env and add your ANTHROPIC_API_KEY
 
 # 2. Create virtual environment
-python3.10 -m venv venv
+python3.10 -m venv venv 
 source venv/bin/activate
 
 # 3. Install dependencies
-pip install --upgrade pip
+pip install --upgrade pip 
 pip install -r requirements.txt
 
 # 4. Ingest historical reports and standards
-cd app/ingestion
+cd app/ingestion 
 python ingest_all.py
 
 # 5. Start backend
-cd ../..
+cd ../.. 
 uvicorn app.main:app --reload --port 8000
 
 # 6. Start frontend (in new terminal)
-cd frontend
+cd frontend 
 streamlit run app.py  # or gradio app
 
 ### Option 3: Docker
