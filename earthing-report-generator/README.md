@@ -58,7 +58,7 @@ The first implementation focuses on electrical earthing system reports for subst
 
 ### Option 1: Using Quickstart Script
 
-cd /home/electronmoss/Projects/context-report/earthing-report-generator
+cd context-report/earthing-report-generator
 
 # Run the quickstart script
 python quickstart.py
