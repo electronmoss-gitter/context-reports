@@ -105,23 +105,23 @@ Follow the prompts to:
 - Input Format  
 - Provide site data in JSON format:  
 
-{
-  "site_name": "Sunnybank 33kV Substation",
-  "voltage_level": "33kV",
-  "site_type": "substation",
-  "soil_resistivity": 100,
-  "fault_current": 25000,
-  "earth_grid": {
-    "dimensions": "50m x 40m",
-    "conductor_size": "70mm²",
-    "depth": "0.6m"
-  },
-  "earthing_system": {
-    "type": "meshed_grid",
-    "earth_rods": 12,
-    "rod_length": "2.4m"
-  }
-}
+{   
+  "site_name": "Sunnybank 33kV Substation",  
+  "voltage_level": "33kV",  
+  "site_type": "substation",  
+  "soil_resistivity": 100,  
+  "fault_current": 25000,  
+  "earth_grid": {  
+    "dimensions": "50m x 40m",  
+    "conductor_size": "70mm²",  
+    "depth": "0.6m"  
+  },  
+  "earthing_system": {  
+    "type": "meshed_grid",  
+    "earth_rods": 12,  
+    "rod_length": "2.4m"  
+  }  
+}  
 
 ## Generate Report
 ### Via Python API
