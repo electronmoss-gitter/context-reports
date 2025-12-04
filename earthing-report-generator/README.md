@@ -72,39 +72,38 @@ Follow the prompts to:
 ### Option 2: Manual Setup
 
 # 1. Set up environment
-cd backend 
-cp .env.example .env
-# Edit .env and add your ANTHROPIC_API_KEY
+- cd backend  
+- cp .env.example .env
+- Edit .env and add your ANTHROPIC_API_KEY
 
 # 2. Create virtual environment
-python3.10 -m venv venv 
-source venv/bin/activate
+- python3.10 -m venv venv   
+- source venv/bin/activate  
 
 # 3. Install dependencies
-pip install --upgrade pip 
-pip install -r requirements.txt
+- pip install --upgrade pip   
+- pip install -r requirements.txt
 
 # 4. Ingest historical reports and standards
-cd app/ingestion 
-python ingest_all.py
+- cd app/ingestion   
+- python ingest_all.py
 
 # 5. Start backend
-cd ../.. 
-uvicorn app.main:app --reload --port 8000
+- cd ../..  
+- uvicorn app.main:app --reload --port 8000
 
 # 6. Start frontend (in new terminal)
-cd frontend 
-streamlit run app.py  # or gradio app
+- cd frontend   
+- streamlit run app.py  # or gradio app  
 
 ### Option 3: Docker
 # Build and run with docker-compose
-docker-compose up --build
-
-# Access at http://localhost:8501 (frontend) and http://localhost:8000 (backend)
+- docker-compose up --build    
+- Access at http://localhost:8501 (frontend) and http://localhost:8000 (backend)
 
 ## Usage
-Input Format
-Provide site data in JSON format:
+- Input Format  
+- Provide site data in JSON format:  
 
 {
   "site_name": "Sunnybank 33kV Substation",
