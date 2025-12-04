@@ -60,7 +60,7 @@ The first implementation focuses on electrical earthing system reports for subst
 
 cd context-report/earthing-report-generator
 
-# Run the quickstart script
+#### Run the quickstart script
 python quickstart.py
 
 Follow the prompts to:
@@ -71,33 +71,33 @@ Follow the prompts to:
 
 ### Option 2: Manual Setup
 
-# 1. Set up environment
+#### 1. Set up environment
 - cd backend  
 - cp .env.example .env
 - Edit .env and add your ANTHROPIC_API_KEY
 
-# 2. Create virtual environment
+#### 2. Create virtual environment
 - python3.10 -m venv venv   
 - source venv/bin/activate  
 
-# 3. Install dependencies
+#### 3. Install dependencies
 - pip install --upgrade pip   
 - pip install -r requirements.txt
 
-# 4. Ingest historical reports and standards
+#### 4. Ingest historical reports and standards
 - cd app/ingestion   
 - python ingest_all.py
 
-# 5. Start backend
+#### 5. Start backend
 - cd ../..  
 - uvicorn app.main:app --reload --port 8000
 
-# 6. Start frontend (in new terminal)
+#### 6. Start frontend (in new terminal)
 - cd frontend   
 - streamlit run app.py  # or gradio app  
 
 ### Option 3: Docker
-# Build and run with docker-compose
+#### Build and run with docker-compose
 - docker-compose up --build    
 - Access at http://localhost:8501 (frontend) and http://localhost:8000 (backend)
 
