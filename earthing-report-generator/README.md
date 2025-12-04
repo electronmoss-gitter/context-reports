@@ -123,8 +123,8 @@ Follow the prompts to:
   }
 }
 
-### Generate Report
-# Via Python API
+## Generate Report
+### Via Python API
 from app.generation.report_generator import ReportGenerator
 
 generator = ReportGenerator()
@@ -134,106 +134,106 @@ Or use the Gradio/Streamlit UI to upload JSON and download the generated DOCX re
 
 ## Testing
 
-# Run tests with sample data
-cd test_data
-python test_samples.py
+### Run tests with sample data
+- cd test_data  
+- python test_samples.py
 
-# Test individual components
+### Test individual components
 python -m pytest backend/app/calculations/
 python -m pytest backend/app/generation/
 
 Sample inputs are provided in test_data/inputs/:
 
-input_commercial_lv.json - Low voltage commercial installation
-input_11kV_substation.json - 11kV distribution substation
-input_33kV_substation_sunnybank.json - 33kV transmission substation
-input_132kV_solar_farm.json - Large-scale solar farm
+- input_commercial_lv.json - Low voltage commercial installation  
+- input_11kV_substation.json - 11kV distribution substation  
+- input_33kV_substation_sunnybank.json - 33kV transmission substation  
+- input_132kV_solar_farm.json - Large-scale solar farm  
 
 ## Project Structure
-earthing-report-generator/
-├── backend/
-│   ├── app/
-│   │   ├── calculations/       # Earthing calculations & formulas
-│   │   ├── generation/         # LLM-powered report generation
-│   │   ├── ingestion/          # Document parsing & chunking
-│   │   ├── rag/                # Vector DB & retrieval
-│   │   ├── historical_reports/ # Sample reports for RAG
-│   │   ├── standards/          # Australian electrical standards
-│   │   └── templates/          # Report templates
-│   ├── test_data/              # Test inputs & samples
-│   └── requirements.txt
-├── frontend/
-│   └── app.py                  # Gradio/Streamlit interface
-├── output/                     # Generated reports
-├── docker-compose.yml
-└── quickstart.py               # Automated setup script
+earthing-report-generator/  
+├── backend/  
+│   ├── app/  
+│   │   ├── calculations/       # Earthing calculations & formulas  
+│   │   ├── generation/         # LLM-powered report generation  
+│   │   ├── ingestion/          # Document parsing & chunking  
+│   │   ├── rag/                # Vector DB & retrieval  
+│   │   ├── historical_reports/ # Sample reports for RAG  
+│   │   ├── standards/          # Australian electrical standards  
+│   │   └── templates/          # Report templates  
+│   ├── test_data/              # Test inputs & samples  
+│   └── requirements.txt  
+├── frontend/  
+│   └── app.py                  # Gradio/Streamlit interface  
+├── output/                     # Generated reports  
+├── docker-compose.yml  
+└── quickstart.py               # Automated setup script  
 
 ## Configuration
 Environment Variables
-# .env file
-ANTHROPIC_API_KEY=your_api_key_here
-CHROMA_PERSIST_DIR=./chroma_db
-MODEL_NAME=claude-3-5-sonnet-20241022
-TEMPERATURE=0.3
-MAX_TOKENS=8000
+### .env file
+ANTHROPIC_API_KEY=your_api_key_here  
+CHROMA_PERSIST_DIR=./chroma_db  
+MODEL_NAME=claude-3-5-sonnet-20241022  
+TEMPERATURE=0.3  
+MAX_TOKENS=8000  
 
 RAG Configuration
-# app/rag/vector_store.py
-COLLECTION_NAME = "earthing_reports"
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"
-CHUNK_SIZE = 512
-CHUNK_OVERLAP = 50
+### app/rag/vector_store.py
+COLLECTION_NAME = "earthing_reports"  
+EMBEDDING_MODEL = "all-MiniLM-L6-v2"  
+CHUNK_SIZE = 512  
+CHUNK_OVERLAP = 50  
 
 ## Roadmap
 
- Earthing system calculations
- RAG pipeline with ChromaDB
- Claude integration for generation
- DOCX report output
- Multi-language support
- Web-based frontend
- API authentication
- Report versioning
- Additional report types (protection, power quality)
+- Earthing system calculations  
+- RAG pipeline with ChromaDB  
+- Claude integration for generation  
+- DOCX report output  
+- Multi-language support  
+- Web-based frontend  
+- API authentication  
+- Report versioning  
+- Additional report types (protection, power quality)  
 
 ## Contributing
 
 Contributions welcome! Please:
 
-Fork the repository
-Create a feature branch (git checkout -b feature/amazing-feature)
-Commit changes (git commit -m 'Add amazing feature')
-Push to branch (git push origin feature/amazing-feature)
-Open a Pull Request
+- Fork the repository  
+- Create a feature branch (git checkout -b feature/amazing-feature)  
+- Commit changes (git commit -m 'Add amazing feature')  
+- Push to branch (git push origin feature/amazing-feature)  
+- Open a Pull Request  
 
 ## License
-This project is proprietary. All rights reserved.
+- This project is proprietary. All rights reserved.
 
 ## Support
-Documentation: See GETTING_STARTED.md for detailed setup
-Status: Check MVP_STATUS.md for current development status
-Issues: Open an issue on the repository
-Testing: Refer to test_data/Testing_guide.txt
+- Documentation: See GETTING_STARTED.md for detailed setup  
+- Status: Check MVP_STATUS.md for current development status  
+- Issues: Open an issue on the repository  
+- Testing: Refer to test_data/Testing_guide.txt  
 
 ## Technology Stack
-Backend: FastAPI, Python 3.10
-LLM: Anthropic Claude (Sonnet 3.5)
-Vector DB: ChromaDB
-Embeddings: Sentence Transformers
-Document Processing: python-docx, PyPDF2, pdfplumber
-Frontend: Gradio / Streamlit
-Deployment: Docker, Docker Compose
+- Backend: FastAPI, Python 3.10  
+- LLM: Anthropic Claude (Sonnet 3.5)  
+- Vector DB: ChromaDB  
+- Embeddings: Sentence Transformers  
+- Document Processing: python-docx, PyPDF2, pdfplumber  
+- Frontend: Gradio / Streamlit  
+- Deployment: Docker, Docker Compose  
 
 ## Performance
-Report Generation: ~30-60 seconds per report
-RAG Retrieval: <2 seconds for relevant context
-Calculation Time: <1 second for all earthing calculations
-Accuracy: 95%+ standards compliance (validated against AS/NZS)
+- Report Generation: ~30-60 seconds per report  
+- RAG Retrieval: <2 seconds for relevant context  
+- Calculation Time: <1 second for all earthing calculations  
+- Accuracy: 95%+ standards compliance (validated against AS/NZS)  
 
 ## Security
-API keys stored in .env (never committed)
-Input validation on all endpoints
-Secure document storage
-Rate limiting on API endpoints
+- API keys stored in .env (never committed)  
+- Input validation on all endpoints  
+- Secure document storage  
+- Rate limiting on API endpoints  
 
 Built with ❤️ for electrical engineering professionals
