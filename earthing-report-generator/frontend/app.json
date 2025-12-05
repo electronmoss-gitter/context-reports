@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "earthing-report-ui",
+    "slug": "earthing-report-ui",
+    "version": "1.0.0",
+    "sdkVersion": "54.0.0",
+    "platforms": ["ios", "android", "web"],
+    "extra": {
+      "eas": {
+        "projectId": "local-dev"
+      }
+    }
+  }
+}
