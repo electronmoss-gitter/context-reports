@@ -1,0 +1,312 @@
+# Australian and International Standards for Earthing Systems
+# Reference Document for AI Report Generation
+
+## AS/NZS 3000:2018 - Electrical Installations (Wiring Rules)
+
+### Section 5.6 - Earthing Arrangements
+
+**Clause 5.6.1.1 - Main Earthing Conductor**
+The main earthing conductor shall be:
+- Copper: minimum 4 mm² for final sub-circuits, 6 mm² for distribution circuits
+- Aluminum: minimum 16 mm² 
+- For installations with multiple incoming supplies > 35mm²: minimum 16 mm² copper or 35 mm² aluminum
+
+**Clause 5.6.2.1 - Size of Main Earthing Conductor**
+Minimum size from Table 5.1:
+- Supply ≤ 100A: 4mm² copper / 16mm² aluminum
+- Supply 100-200A: 6mm² copper / 16mm² aluminum  
+- Supply > 200A: 16mm² copper / 35mm² aluminum
+
+**Clause 5.6.2.2 - Earthing Conductor Connections**
+All connections shall be:
+- Mechanically and electrically sound
+- Protected against corrosion
+- Accessible for inspection (except buried connections)
+- Exothermic welding, compression fittings, or bolted connections
+
+**Clause 5.7 - Bonding**
+All extraneous-conductive-parts shall be bonded to the main earthing terminal:
+- Metal water pipes
+- Metal gas pipes
+- Structural steelwork
+- Lightning protection systems
+- Other services
+
+### Section 8.3 - Protection Against Electric Shock
+
+**Clause 8.3.2 - Earthed Equipotential Bonding and Automatic Disconnection**
+Protection by automatic disconnection requires:
+- All exposed-conductive-parts connected to earthing system
+- Protective device to disconnect within specified time
+- Earth fault loop impedance sufficiently low
+
+---
+
+## AS 2067:2016 - Substations and High Voltage Installations
+
+### Section 4.3 - Earthing System Design
+
+**Clause 4.3.1 - General Requirements**
+The earthing system shall:
+- Provide safe dissipation of fault currents
+- Maintain touch and step potentials within safe limits
+- Provide effective earth reference for equipment
+- Maintain integrity under all operating conditions
+
+**Clause 4.3.2 - Earth Resistance**
+Maximum earth resistance values:
+- For substations ≤ 66kV: typically ≤ 5 Ω
+- For substations > 66kV: typically ≤ 1 Ω
+- Lower values may be required based on fault current and protection requirements
+
+**Clause 4.3.3 - Earth Grid Construction**
+Earth grids shall:
+- Use corrosion-resistant conductors (copper or copper-bonded steel)
+- Be buried at adequate depth (typically 0.5-0.8m)
+- Include multiple earth electrodes
+- Cover area of major equipment
+
+**Clause 4.4 - Touch and Step Potentials**
+Touch and step potentials shall not exceed limits calculated per IEEE 80 or equivalent:
+- Consider fault current magnitude
+- Consider fault duration
+- Consider soil resistivity
+- Consider surface material resistivity
+
+**Clause 4.5 - Earthing Conductors**
+
+**Clause 4.5.1 - Minimum Sizes**
+Buried earthing conductors:
+- Copper: minimum 50 mm² for grids
+- Copper-clad steel: minimum 70 mm²
+- Above-ground bonds: minimum 16 mm² copper
+
+**Clause 4.5.2 - Conductor Sizing for Fault Current**
+Conductors shall withstand maximum fault current without damage:
+- Calculate using adiabatic equation (AS/NZS 3008.1.1)
+- Consider fault duration
+- Consider heat dissipation to soil
+
+**Clause 4.5.3 - Connections**
+All buried connections:
+- Exothermic welding (Cadweld or equivalent)
+- Compression fittings (for special applications)
+- Minimum two connections for reliability
+
+### Section 5.2 - Equipment Earthing
+
+**Clause 5.2.1 - Equipment Bonding**
+All metallic non-current-carrying parts shall be bonded:
+- Transformer tanks and enclosures
+- Switchgear structures and panels
+- Cable metallic sheaths and armour
+- Metallic fences and gates
+- Metallic building structures
+
+---
+
+## IEEE 80-2013 - Guide for Safety in AC Substation Grounding
+
+### Section 8 - Tolerable Touch and Step Voltages
+
+**Equation 8.1 - Tolerable Touch Voltage (50-70kg person)**
+E_touch = (1000 + 1.5 × ρ_s × C_s) × (0.116 / √t_s)
+
+Where:
+- ρ_s = surface layer resistivity (Ω·m)
+- C_s = surface layer derating factor
+- t_s = duration of shock current (seconds)
+- 0.116 = empirical constant for 50-70kg person
+
+**Equation 8.2 - Tolerable Step Voltage**
+E_step = (1000 + 6 × ρ_s × C_s) × (0.116 / √t_s)
+
+**Table 8.1 - Surface Layer Derating Factor**
+C_s = 1 - (0.09 × (1 - ρ/ρ_s)) / (2h_s + 0.09)
+
+Where:
+- ρ = earth resistivity (Ω·m)  
+- ρ_s = surface layer resistivity (Ω·m)
+- h_s = thickness of surface layer (m)
+
+### Section 14 - Resistance of Ground System
+
+**Equation 14.7 - Schwarz's Equation (Grid Resistance)**
+R_g = ρ / (4√A) × [1 + 1/(1 + h√(A/20))]
+
+Where:
+- ρ = soil resistivity (Ω·m)
+- A = grid area (m²)
+- h = depth of grid burial (m)
+
+**Equation 14.15 - Grid with Ground Rods**
+R_g = R_g(grid) || R_r(rods)
+Considers parallel resistance of grid and vertical rods
+
+### Section 15 - Design Procedures
+
+**15.1 - Basic Design Steps**
+1. Conduct field survey and soil resistivity measurements
+2. Determine maximum grid current
+3. Calculate tolerable touch and step voltages
+4. Design preliminary grid
+5. Calculate actual touch and step voltages
+6. Iterate design if necessary
+
+**15.8 - Mesh Voltage (Touch Potential)**
+E_mesh = (ρ × K_m × K_i × I_f) / L_m
+
+Where:
+- K_m = geometric spacing factor
+- K_i = irregularity factor  
+- I_f = maximum fault current (A)
+- L_m = effective buried conductor length (m)
+
+**15.9 - Step Voltage**
+E_step = (ρ × K_s × K_i × I_f) / L_s
+
+Where:
+- K_s = geometric spacing factor for step voltage
+- L_s = effective buried conductor length for step (m)
+
+---
+
+## AS/NZS 3008.1.1:2017 - Conductor Sizing for Fault Currents
+
+### Section 3.4 - Short Circuit Temperature Rise
+
+**Equation 3.1 - Adiabatic Equation**
+A = I × √[t / (K × ln((T_CAP + α) / (T_max + α)))]
+
+Where:
+- A = minimum conductor cross-sectional area (mm²)
+- I = fault current (A)
+- t = fault duration (seconds)
+- K = material constant (226 for copper, 148 for aluminum)
+- T_CAP = melting point (°C) - 1083°C for copper
+- α = temperature coefficient (234.5 for copper, 228 for aluminum)
+- T_max = maximum allowable temperature (°C)
+
+**Table 3.1 - Material Constants**
+Copper:
+- K = 226
+- α = 234.5
+- T_CAP = 1083°C
+
+Aluminum:  
+- K = 148
+- α = 228
+- T_CAP = 657°C
+
+**Clause 3.4.2 - Maximum Temperatures**
+For bare buried conductors:
+- Copper: typically 200-300°C (conservative)
+- Copper in air: 250-450°C (depending on joint type)
+
+---
+
+## AS/NZS 5033:2014 - Installation of Photovoltaic (PV) Arrays
+
+### Section 4.3 - Earthing
+
+**Clause 4.3.1 - General**
+PV arrays and associated equipment shall be earthed in accordance with AS/NZS 3000.
+
+**Clause 4.3.2 - Array Structure Earthing**
+Metallic support structures shall:
+- Be bonded together electrically
+- Be connected to main earthing system
+- Use corrosion-resistant connections
+- Minimum conductor: 16 mm² copper or 35 mm² aluminum
+
+**Clause 4.3.3 - DC Earthing**
+For systems with negative terminal earthed:
+- Negative conductor bonded at one point only
+- Connection as close to inverter as practical
+- Earth fault detection required
+
+**Clause 4.3.4 - Lightning Protection**
+Array structures inherently provide lightning protection:
+- Integrate with earthing system
+- Provide surge protection devices (SPD)
+- Bond all metallic components
+
+---
+
+## Key Compliance Statements for Reports
+
+### Standard Compliance Templates
+
+**AS/NZS 3000 Compliance:**
+"The earthing system complies with AS/NZS 3000:2018 requirements:
+- Clause 5.6.1.1: Main earthing conductor [SIZE] exceeds minimum [REQUIREMENT]
+- Clause 5.6.2.2: All connections use [METHOD] per specification
+- Clause 5.7: All extraneous-conductive-parts bonded to main earthing terminal"
+
+**AS 2067 Compliance:**
+"The design meets AS 2067:2016 standards for high voltage installations:
+- Clause 4.3.2: Earth resistance of [VALUE]Ω achieved (requirement: ≤ [LIMIT]Ω)
+- Clause 4.4: Touch potential [VALUE]V within safe limit of [LIMIT]V
+- Clause 4.4: Step potential [VALUE]V within safe limit of [LIMIT]V
+- Clause 4.5.3: All buried connections use exothermic welding"
+
+**IEEE 80 Compliance:**
+"Safety analysis performed using IEEE 80-2013 methodology:
+- Section 8: Tolerable voltages calculated for [DURATION]s fault duration
+- Section 14: Grid resistance calculated using Schwarz equation
+- Section 15: Design procedure followed with iterative analysis
+- Touch and step potentials within calculated safe limits"
+
+---
+
+## Common Earthing Design Requirements by Voltage Class
+
+### Low Voltage (< 1kV)
+- Target earth resistance: < 1 Ω (TN systems)
+- Minimum conductor: 16 mm² copper for main earthing
+- Standards: AS/NZS 3000 primary reference
+
+### High Voltage (1kV - 66kV)
+- Target earth resistance: typically < 5 Ω (1-2 Ω preferred)
+- Minimum grid conductor: 50-70 mm² copper
+- Touch/step analysis required
+- Standards: AS 2067, IEEE 80
+
+### Extra High Voltage (> 66kV)
+- Target earth resistance: typically < 1-2 Ω
+- Minimum grid conductor: 95-120 mm² copper
+- Detailed touch/step analysis mandatory
+- Surface treatment often required
+- Standards: AS 2067, IEEE 80
+
+---
+
+## Typical Design Values (Australian Conditions)
+
+### Soil Resistivity Ranges
+- Very low: < 100 Ω·m (wet clay, coastal areas)
+- Low: 100-300 Ω·m (moist soil, loam)
+- Medium: 300-500 Ω·m (sandy soil, typical conditions)
+- High: 500-1000 Ω·m (dry sandy soil, weathered rock)
+- Very high: > 1000 Ω·m (rock, very dry conditions)
+
+### Surface Layer Materials (for touch/step calculation)
+- Crushed rock (20mm): 2,000-3,500 Ω·m
+- Gravel (40mm): 3,000-5,000 Ω·m  
+- Asphalt: 10,000-30,000 Ω·m
+- Concrete: 1,000-10,000 Ω·m (varies with moisture)
+- Grass/vegetation: 200-1,000 Ω·m (moisture dependent)
+
+### Typical Fault Currents (Australian Networks)
+- 415V LV: 10-50 kA
+- 11kV: 8-20 kA
+- 22kV: 10-25 kA
+- 33kV: 15-30 kA
+- 66kV: 20-40 kA
+- 132kV: 25-50 kA
+
+### Typical Protection Operating Times
+- LV circuit breakers: 0.02-0.2 seconds
+- HV instantaneous: 0.1-0.3 seconds
+- HV time delayed: 0.3-1.0 seconds
+- Backup protection: 1.0-3.0 seconds

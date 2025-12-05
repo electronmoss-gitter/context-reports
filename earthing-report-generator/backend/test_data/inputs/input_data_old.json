@@ -1,0 +1,29 @@
+{
+  "project_name": "Example 33kV Substation Earthing Study",
+  "client_name": "Example Energy Corporation",
+  "site_address": "123 Industrial Drive, Brisbane QLD 4000",
+  "project_number": "ES-2024-001",
+  "engineer_name": "John Smith, CPEng",
+  "voltage_level": "33kV",
+  "fault_current_symmetrical": 25.0,
+  "fault_current_asymmetrical": 31.25,
+  "fault_clearance_time": 0.5,
+  "transformer_rating": "20MVA",
+  "soil_resistivity_measurements": [
+    {"depth": 1.0, "resistivity": 150.0},
+    {"depth": 3.0, "resistivity": 200.0},
+    {"depth": 5.0, "resistivity": 180.0},
+    {"depth": 10.0, "resistivity": 220.0}
+  ],
+  "soil_model_type": "two_layer",
+  "site_length": 50.0,
+  "site_width": 40.0,
+  
+  "target_grid_resistance": 1.0,
+  "touch_potential_limit": 650.0,
+  "step_potential_limit": 1800.0,
+  "earth_conductor_size": "70mm2",
+  
+  "project_type": "substation",
+  "special_requirements": "Site has high water table. Corrosion protection required for earth electrodes."
+}

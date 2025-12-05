@@ -1,282 +1,246 @@
 """
 Vector Store - Store and retrieve document embeddings using ChromaDB
 """
+import os
+os.environ["ANONYMIZED_TELEMETRY"] = "False"
+os.environ["CHROMA_TELEMETRY"] = "False"
+
 import chromadb
 from chromadb.config import Settings
+from sentence_transformers import SentenceTransformer
 from typing import List, Dict, Optional
-from pathlib import Path
-import os
-import json
+import time
+
+# Import global config
+from app.config import (
+    EMBEDDING_MODEL,
+    VECTOR_STORE_PATH,
+    VECTOR_STORE_COLLECTION
+)
+
 
 class VectorStore:
-    """
-    Manage document embeddings in ChromaDB (local, persistent vector database)
-    """
+    """Manages document embeddings and retrieval using ChromaDB"""
     
-    def __init__(self, persist_directory: str = None, collection_name: str = "earthing_reports"):
+    def __init__(self, persist_directory: str = None):
         """
-        Initialize vector store
+        Initialize the vector store with ChromaDB
         
         Args:
-            persist_directory: Directory to store the database
-            collection_name: Name of the collection
+            persist_directory: Directory to persist the database (uses config if None)
         """
         if persist_directory is None:
-            persist_directory = os.getenv("VECTOR_DB_PATH", "./data/vector_db")
+            persist_directory = VECTOR_STORE_PATH
         
-        self.persist_directory = Path(persist_directory)
-        self.persist_directory.mkdir(parents=True, exist_ok=True)
+        self.persist_directory = os.path.abspath(persist_directory)
+        os.makedirs(self.persist_directory, exist_ok=True)
         
-        # Initialize ChromaDB client
+        print(f"Initializing ChromaDB at: {self.persist_directory}")
+        
+        # Initialize ChromaDB
         self.client = chromadb.PersistentClient(
-            path=str(self.persist_directory),
+            path=self.persist_directory,
             settings=Settings(
                 anonymized_telemetry=False,
                 allow_reset=True
             )
         )
         
-        # Get or create collection
-        self.collection_name = collection_name
+        # Lazy load embedding model
+        self._embedding_model = None
+        self.model_name = EMBEDDING_MODEL
+        
+        # Get or create collection with COSINE distance metric
         self.collection = self.client.get_or_create_collection(
-            name=collection_name,
-            metadata={"description": "Electrical earthing study reports and standards"}
+            name=VECTOR_STORE_COLLECTION,
+            metadata={
+                "description": "Historical earthing reports and standards",
+                "hnsw:space": "cosine"  # ✅ Use cosine distance for better similarity scores
+            }
         )
         
-        print(f"Vector store initialized at: {self.persist_directory}")
-        print(f"Collection '{collection_name}' contains {self.collection.count()} documents")
+        print(f"Collection '{VECTOR_STORE_COLLECTION}' ready. Current count: {self.collection.count()}")
     
-    def add_chunks(self, chunks: List[Dict], embeddings: List[List[float]]):
+    @property
+    def embedding_model(self):
+        """Lazy load the embedding model"""
+        if self._embedding_model is None:
+            print(f"Loading embedding model: {self.model_name}")
+            self._embedding_model = SentenceTransformer(self.model_name)
+            dim = self._embedding_model.get_sentence_embedding_dimension()
+            print(f"✅ Model loaded. Embedding dimension: {dim}")
+        return self._embedding_model
+    
+    def add_documents(
+        self, 
+        documents: List[str], 
+        metadatas: Optional[List[Dict]] = None,
+        ids: Optional[List[str]] = None
+    ):
         """
-        Add document chunks with their embeddings to the vector store
+        Add documents to the vector store
         
         Args:
-            chunks: List of chunk dicts (must have 'text' and 'metadata')
-            embeddings: Corresponding embeddings for each chunk
+            documents: List of text documents
+            metadatas: Optional metadata for each document
+            ids: Optional IDs for documents
         """
-        if len(chunks) != len(embeddings):
-            raise ValueError(f"Number of chunks ({len(chunks)}) must match embeddings ({len(embeddings)})")
+        if not documents:
+            return
         
-        # Prepare data for ChromaDB
-        ids = []
-        documents = []
-        metadatas = []
-        embeddings_list = []
+        # Generate embeddings
+        embeddings = self.embedding_model.encode(documents).tolist()
         
-        for i, (chunk, embedding) in enumerate(zip(chunks, embeddings)):
-            # Generate unique ID
-            source_file = chunk.get("source_file", "unknown")
-            chunk_id = chunk.get("chunk_id", i)
-            doc_id = f"{Path(source_file).stem}_chunk_{chunk_id}"
-            
-            ids.append(doc_id)
-            documents.append(chunk["text"])
-            
-            # Prepare metadata (ChromaDB requires flat dict with string/int/float values)
-            metadata = self._flatten_metadata(chunk.get("metadata", {}))
-            metadata["section_type"] = chunk.get("section_type", "unknown")
-            metadata["source_file"] = source_file
-            metadata["chunk_id"] = chunk_id
-            
-            metadatas.append(metadata)
-            embeddings_list.append(embedding)
+        # Generate IDs if not provided
+        if ids is None:
+            timestamp = int(time.time() * 1000)
+            ids = [f"doc_{timestamp}_{i}" for i in range(len(documents))]
         
         # Add to collection
         self.collection.add(
-            ids=ids,
-            embeddings=embeddings_list,
             documents=documents,
-            metadatas=metadatas
+            embeddings=embeddings,
+            metadatas=metadatas,
+            ids=ids
         )
         
-        print(f"Added {len(chunks)} chunks to vector store")
+        print(f"Added {len(documents)} documents. Total: {self.collection.count()}")
     
-    def search(
-        self,
-        query_embedding: List[float],
+    def add_chunks(self, chunks: List[Dict], embeddings: List) -> None:
+        """
+        Add pre-computed chunks and embeddings to vector store
+        
+        Args:
+            chunks: List of chunk dictionaries with 'text' and 'metadata'
+            embeddings: Pre-computed embeddings (from Embedder)
+        """
+        if not chunks or len(chunks) == 0:
+            return
+        
+        # Extract text and metadata from chunks
+        documents = [chunk['text'] for chunk in chunks]
+        metadatas = [chunk.get('metadata', {}) for chunk in chunks]
+        
+        # Generate unique IDs
+        timestamp = int(time.time() * 1000)
+        ids = [f"chunk_{timestamp}_{i}" for i in range(len(chunks))]
+        
+        # Convert embeddings to list if numpy array
+        if hasattr(embeddings, 'tolist'):
+            embeddings = embeddings.tolist()
+        
+        # Add to collection
+        self.collection.add(
+            documents=documents,
+            embeddings=embeddings,
+            metadatas=metadatas,
+            ids=ids
+        )
+        
+        print(f"  Stored {len(chunks)} chunks in vector DB. Total: {self.collection.count()}")
+    
+    def query(
+        self, 
+        query_text: str, 
         n_results: int = 5,
         filter_metadata: Optional[Dict] = None
-    ) -> List[Dict]:
+    ) -> Dict:
         """
-        Search for similar chunks using query embedding
+        Query the vector store for similar documents
         
         Args:
-            query_embedding: Query embedding vector
+            query_text: Query string
             n_results: Number of results to return
-            filter_metadata: Optional metadata filters (e.g., {"project_type": "substation"})
+            filter_metadata: Optional metadata filters
             
         Returns:
-            List of matching chunks with similarity scores
+            Dictionary with documents, distances, and metadatas
         """
-        where_clause = filter_metadata if filter_metadata else None
+        # Generate query embedding
+        query_embedding = self.embedding_model.encode([query_text]).tolist()
         
+        # Query collection
         results = self.collection.query(
-            query_embeddings=[query_embedding],
+            query_embeddings=query_embedding,
             n_results=n_results,
-            where=where_clause,
-            include=["documents", "metadatas", "distances"]
+            where=filter_metadata
         )
         
-        # Format results
-        formatted_results = []
-        for i in range(len(results['ids'][0])):
-            formatted_results.append({
-                "id": results['ids'][0][i],
-                "text": results['documents'][0][i],
-                "metadata": results['metadatas'][0][i],
-                "similarity_score": 1 - results['distances'][0][i],  # Convert distance to similarity
-                "distance": results['distances'][0][i]
-            })
-        
-        return formatted_results
+        return {
+            'documents': results['documents'][0] if results['documents'] else [],
+            'distances': results['distances'][0] if results['distances'] else [],
+            'metadatas': results['metadatas'][0] if results['metadatas'] else []
+        }
     
-    def get_by_metadata(self, filter_metadata: Dict, limit: int = 10) -> List[Dict]:
-        """
-        Retrieve chunks by metadata filters
-        
-        Args:
-            filter_metadata: Metadata to filter by
-            limit: Maximum number of results
-            
-        Returns:
-            List of matching chunks
-        """
-        results = self.collection.get(
-            where=filter_metadata,
-            limit=limit,
-            include=["documents", "metadatas"]
-        )
-        
-        formatted_results = []
-        for i in range(len(results['ids'])):
-            formatted_results.append({
-                "id": results['ids'][i],
-                "text": results['documents'][i],
-                "metadata": results['metadatas'][i]
-            })
-        
-        return formatted_results
-    
-    def delete_by_source(self, source_file: str):
-        """
-        Delete all chunks from a specific source file
-        
-        Args:
-            source_file: Source filename to delete
-        """
-        self.collection.delete(
-            where={"source_file": source_file}
-        )
-        print(f"Deleted chunks from: {source_file}")
-    
-    def clear(self):
-        """Clear all data from the collection"""
-        self.client.delete_collection(self.collection_name)
-        self.collection = self.client.create_collection(
-            name=self.collection_name,
-            metadata={"description": "Electrical earthing study reports and standards"}
-        )
-        print(f"Cleared collection '{self.collection_name}'")
+    def get_collection_count(self) -> int:
+        """Get the number of documents in the collection"""
+        return self.collection.count()
     
     def get_stats(self) -> Dict:
-        """Get statistics about the vector store"""
-        count = self.collection.count()
+        """
+        Get statistics about the vector store
         
-        # Get sample of metadata to understand what's stored
-        if count > 0:
-            sample = self.collection.get(limit=min(100, count), include=["metadatas"])
+        Returns:
+            Dictionary with statistics
+        """
+        count = self.get_collection_count()
+        
+        if count == 0:
+            return {
+                "total_chunks": 0,
+                "message": "Vector store is empty. Run ingestion to add documents."
+            }
+        
+        # Get sample metadata to analyze
+        try:
+            sample = self.collection.get(
+                limit=min(100, count),
+                include=["metadatas"]
+            )
             
-            # Aggregate metadata
+            # Aggregate metadata statistics
             project_types = {}
             voltage_levels = {}
-            section_types = {}
+            doc_types = {}
             
-            for metadata in sample['metadatas']:
-                pt = metadata.get('project_type', 'unknown')
-                project_types[pt] = project_types.get(pt, 0) + 1
-                
-                vl = metadata.get('voltage_level', 'unknown')
-                voltage_levels[vl] = voltage_levels.get(vl, 0) + 1
-                
-                st = metadata.get('section_type', 'unknown')
-                section_types[st] = section_types.get(st, 0) + 1
+            for metadata in sample.get('metadatas', []):
+                if metadata:
+                    # Count project types
+                    pt = metadata.get('project_type', 'unknown')
+                    project_types[pt] = project_types.get(pt, 0) + 1
+                    
+                    # Count voltage levels
+                    vl = metadata.get('voltage_level', 'unknown')
+                    voltage_levels[vl] = voltage_levels.get(vl, 0) + 1
+                    
+                    # Count document types
+                    dt = metadata.get('type', 'unknown')
+                    doc_types[dt] = doc_types.get(dt, 0) + 1
             
             return {
                 "total_chunks": count,
                 "project_types": project_types,
                 "voltage_levels": voltage_levels,
-                "section_types": section_types
+                "doc_types": doc_types,
+                "model_loaded": self._embedding_model is not None
             }
-        else:
+        except Exception as e:
             return {
-                "total_chunks": 0,
-                "message": "No documents in collection"
+                "total_chunks": count,
+                "error": f"Could not retrieve detailed stats: {str(e)}"
             }
     
-    def _flatten_metadata(self, metadata: Dict) -> Dict:
-        """
-        Flatten metadata dict to only include string/int/float values
-        (ChromaDB requirement)
-        """
-        flattened = {}
-        
-        for key, value in metadata.items():
-            if isinstance(value, (str, int, float, bool)):
-                flattened[key] = value
-            elif isinstance(value, list):
-                # Convert lists to comma-separated strings
-                flattened[key] = ",".join(str(v) for v in value)
-            elif isinstance(value, dict):
-                # Skip nested dicts
-                continue
-            else:
-                flattened[key] = str(value)
-        
-        return flattened
-
-
-if __name__ == "__main__":
-    # Test the vector store
-    from app.rag.embedder import Embedder
-    
-    embedder = Embedder()
-    vector_store = VectorStore()
-    
-    # Test data
-    test_chunks = [
-        {
-            "text": "Soil resistivity was measured using the Wenner four-probe method at depths of 1m, 3m, and 5m.",
-            "metadata": {"project_type": "substation", "voltage_level": "HV"},
-            "section_type": "soil_resistivity",
-            "source_file": "test_report.pdf",
-            "chunk_id": 0
-        },
-        {
-            "text": "Touch potential calculations were performed according to IEEE 80-2013 standards.",
-            "metadata": {"project_type": "substation", "voltage_level": "HV"},
-            "section_type": "calculations",
-            "source_file": "test_report.pdf",
-            "chunk_id": 1
-        }
-    ]
-    
-    # Generate embeddings
-    texts = [chunk["text"] for chunk in test_chunks]
-    embeddings = embedder.embed_texts(texts, show_progress=False)
-    
-    # Add to vector store
-    vector_store.add_chunks(test_chunks, embeddings)
-    
-    # Search
-    query = "How was soil resistivity measured?"
-    query_embedding = embedder.embed_query(query)
-    results = vector_store.search(query_embedding, n_results=2)
-    
-    print(f"\nSearch results for: '{query}'")
-    for result in results:
-        print(f"- Similarity: {result['similarity_score']:.3f}")
-        print(f"  Text: {result['text'][:100]}...")
-    
-    # Stats
-    stats = vector_store.get_stats()
-    print(f"\nVector store stats: {stats}")
+    def clear_collection(self):
+        """Clear all documents from the collection"""
+        try:
+            self.client.delete_collection(VECTOR_STORE_COLLECTION)
+            self.collection = self.client.get_or_create_collection(
+                name=VECTOR_STORE_COLLECTION,
+                metadata={
+                    "description": "Historical earthing reports and standards",
+                    "hnsw:space": "cosine"
+                }
+            )
+            print("✅ Collection cleared")
+        except Exception as e:
+            print(f"⚠️  Error clearing collection: {e}")

@@ -1,231 +1,286 @@
 """
-Retriever - Search historical reports and retrieve relevant context
+Retriever - Retrieve relevant document chunks from vector store
 """
 from typing import List, Dict, Optional
-from app.rag.embedder import Embedder
 from app.rag.vector_store import VectorStore
-import os
 
 class Retriever:
-    """
-    Retrieve relevant context from historical reports based on project data
-    """
+    """Retrieves relevant document chunks using semantic search"""
     
-    def __init__(self):
-        """Initialize retriever with embedder and vector store"""
-        self.embedder = Embedder()
-        self.vector_store = VectorStore()
+    def __init__(self, vector_store: VectorStore):
+        """
+        Initialize retriever
         
-        # Configuration
-        self.top_k = int(os.getenv("TOP_K_RESULTS", "5"))
-        self.similarity_threshold = float(os.getenv("SIMILARITY_THRESHOLD", "0.7"))
+        Args:
+            vector_store: VectorStore instance
+        """
+        self.vector_store = vector_store
     
     def retrieve(
         self,
         query: str,
-        project_metadata: Optional[Dict] = None,
-        n_results: int = None,
-        section_type: Optional[str] = None
+        n_results: int = 5,
+        filter_metadata: Optional[Dict] = None,
+        min_similarity: float = 0.0
     ) -> List[Dict]:
         """
-        Retrieve relevant context for a query
+        Retrieve relevant chunks for a query
         
         Args:
-            query: Search query (e.g., "touch potential calculations for 33kV substation")
-            project_metadata: Optional project metadata for filtering
-            n_results: Number of results to return (default: self.top_k)
-            section_type: Optional filter by section type
+            query: Query string
+            n_results: Number of results to return
+            filter_metadata: Optional metadata filters
+            min_similarity: Minimum similarity threshold (0.0 to 1.0)
             
         Returns:
-            List of relevant chunks with similarity scores
+            List of result dictionaries with content, metadata, and similarity
         """
-        if n_results is None:
-            n_results = self.top_k
-        
-        # Generate query embedding
-        query_embedding = self.embedder.embed_query(query)
-        
-        # Build metadata filter
-        filter_metadata = {}
-        if project_metadata:
-            # Filter by matching project characteristics
-            if "project_type" in project_metadata:
-                filter_metadata["project_type"] = project_metadata["project_type"]
-            if "voltage_level" in project_metadata:
-                filter_metadata["voltage_level"] = project_metadata["voltage_level"]
-        
-        if section_type:
-            filter_metadata["section_type"] = section_type
-        
-        # Search vector store
-        results = self.vector_store.search(
-            query_embedding=query_embedding,
-            n_results=n_results * 2,  # Get more results to filter by threshold
-            filter_metadata=filter_metadata if filter_metadata else None
+        # Query vector store
+        raw_results = self.vector_store.query(
+            query_text=query,
+            n_results=n_results,
+            filter_metadata=filter_metadata
         )
         
-        # Filter by similarity threshold
-        filtered_results = [
-            r for r in results
-            if r["similarity_score"] >= self.similarity_threshold
-        ]
+        # Format results
+        formatted_results = []
         
-        # Take top n_results
-        return filtered_results[:n_results]
-    
-    def retrieve_by_project_type(
-        self,
-        project_data: Dict,
-        section_types: Optional[List[str]] = None
-    ) -> Dict[str, List[Dict]]:
-        """
-        Retrieve relevant examples for each section of the report
+        documents = raw_results.get('documents', [])
+        distances = raw_results.get('distances', [])
+        metadatas = raw_results.get('metadatas', [])
         
-        Args:
-            project_data: Project input data
-            section_types: List of section types to retrieve (default: all major sections)
+        # Check if we got results
+        if not documents:
+            return []
+        
+        for i in range(len(documents)):
+            distance = distances[i] if i < len(distances) else float('inf')
             
-        Returns:
-            Dict mapping section_type to list of relevant chunks
-        """
-        if section_types is None:
-            section_types = [
-                "executive_summary",
-                "site_description",
-                "soil_resistivity",
-                "earthing_design",
-                "calculations",
-                "touch_step",
-                "compliance",
-                "recommendations"
-            ]
-        
-        # Extract project characteristics for filtering
-        project_metadata = {
-            "project_type": project_data.get("project_type", "general"),
-            "voltage_level": self._extract_voltage_level(project_data.get("voltage_level", ""))
-        }
-        
-        results_by_section = {}
-        
-        for section_type in section_types:
-            # Create section-specific query
-            query = self._create_section_query(section_type, project_data)
+            # With cosine distance, convert to similarity
+            # Cosine distance range: 0 (identical) to 2 (opposite)
+            # Similarity = 1 - (distance / 2)
+            similarity = 1.0 - (distance / 2.0)
             
-            # Retrieve relevant chunks
-            chunks = self.retrieve(
-                query=query,
-                project_metadata=project_metadata,
-                section_type=section_type,
-                n_results=3  # Get top 3 examples per section
-            )
+            # Apply similarity threshold
+            if similarity < min_similarity:
+                continue
             
-            results_by_section[section_type] = chunks
+            formatted_results.append({
+                'content': documents[i],
+                'metadata': metadatas[i] if i < len(metadatas) else {},
+                'similarity': similarity,
+                'distance': distance
+            })
         
-        return results_by_section
-    
-    def retrieve_similar_projects(
-        self,
-        project_data: Dict,
-        n_results: int = 5
-    ) -> List[Dict]:
-        """
-        Find similar complete projects based on characteristics
+        # Sort by similarity (highest first)
+        formatted_results.sort(key=lambda x: x['similarity'], reverse=True)
         
-        Args:
-            project_data: Project input data
-            n_results: Number of similar projects to find
-            
-        Returns:
-            List of similar project chunks
-        """
-        # Create query from project characteristics
-        query_parts = []
-        
-        if "project_type" in project_data:
-            query_parts.append(project_data["project_type"])
-        if "voltage_level" in project_data:
-            query_parts.append(f"{project_data['voltage_level']} voltage")
-        if "fault_current_symmetrical" in project_data:
-            query_parts.append(f"{project_data['fault_current_symmetrical']}kA fault current")
-        
-        query = " ".join(query_parts)
-        
-        # Retrieve with project metadata filter
-        project_metadata = {
-            "project_type": project_data.get("project_type", "general"),
-            "voltage_level": self._extract_voltage_level(project_data.get("voltage_level", ""))
-        }
-        
-        return self.retrieve(
-            query=query,
-            project_metadata=project_metadata,
-            n_results=n_results
-        )
-    
-    def _create_section_query(self, section_type: str, project_data: Dict) -> str:
-        """Create a search query for a specific section"""
-        voltage = project_data.get("voltage_level", "")
-        project_type = project_data.get("project_type", "")
-        
-        queries = {
-            "executive_summary": f"executive summary for {voltage} {project_type} earthing study",
-            "site_description": f"site description {project_type} electrical installation",
-            "soil_resistivity": f"soil resistivity measurements analysis Wenner method",
-            "earthing_design": f"earthing grid design {voltage} earth electrode system",
-            "calculations": f"earth resistance touch step potential calculations {voltage}",
-            "touch_step": f"touch potential step potential safety analysis IEEE 80",
-            "compliance": f"compliance AS/NZS 3000 IEEE 80 earthing standards",
-            "recommendations": f"earthing system recommendations maintenance testing"
-        }
-        
-        return queries.get(section_type, section_type)
-    
-    def _extract_voltage_level(self, voltage_str: str) -> str:
-        """Extract voltage level category from voltage string"""
-        if not voltage_str:
-            return "unknown"
-        
-        # Extract numeric value
-        import re
-        match = re.search(r'(\d+)', voltage_str)
-        if not match:
-            return "unknown"
-        
-        voltage = int(match.group(1))
-        
-        if voltage <= 1:
-            return "LV"
-        elif voltage <= 66:
-            return "HV"
-        else:
-            return "EHV"
-    
-    def is_ready(self) -> bool:
-        """Check if retriever is ready (vector store has data)"""
-        stats = self.vector_store.get_stats()
-        return stats.get("total_chunks", 0) > 0
+        return formatted_results
+
+# """
+# Retriever - Retrieve relevant document chunks from vector store
+# """
+# from typing import List, Dict, Optional
+# from app.rag.vector_store import VectorStore
+# import math
+
+# # Import global config
+# from app.config import (
+#     VECTOR_STORE_COLLECTION
+# )
 
 
-if __name__ == "__main__":
-    # Test the retriever
-    retriever = Retriever()
+# class Retriever:
+#     """Retrieves relevant document chunks using semantic search"""
     
-    # Test simple retrieval
-    results = retriever.retrieve("soil resistivity measurement methods")
-    print(f"Found {len(results)} results")
-    for r in results:
-        print(f"- Score: {r['similarity_score']:.3f}")
-        print(f"  {r['text'][:100]}...")
+#     def __init__(self, vector_store: VectorStore):
+#         """
+#         Initialize retriever
+        
+#         Args:
+#             vector_store: VectorStore instance
+#         """
+#         self.vector_store = vector_store
+
+#         # Get or create collection with cosine distance
+#         self.collection = self.client.get_or_create_collection(
+#             name=VECTOR_STORE_COLLECTION,
+#             metadata={
+#                 "description": "Historical earthing reports and standards",
+#                 "hnsw:space": "cosine"  # Use cosine distance instead of L2
+#             }
+#         )
     
-    # Test project-based retrieval
-    test_project = {
-        "project_type": "substation",
-        "voltage_level": "33kV",
-        "fault_current_symmetrical": 25.0
-    }
+#     def retrieve(
+#         self,
+#         query: str,
+#         n_results: int = 5,
+#         filter_metadata: Optional[Dict] = None,
+#         min_similarity: float = 0.0  # Don't filter by default
+#     ) -> List[Dict]:
+#         """
+#         Retrieve relevant chunks for a query
+        
+#         Args:
+#             query: Query string
+#             n_results: Number of results to return
+#             filter_metadata: Optional metadata filters
+#             min_similarity: Minimum similarity threshold (0.0 to 1.0)
+            
+#         Returns:
+#             List of result dictionaries with content, metadata, and similarity
+#         """
+#         # Query vector store
+#         raw_results = self.vector_store.query(
+#             query_text=query,
+#             n_results=n_results,
+#             filter_metadata=filter_metadata
+#         )
+        
+#         # Format results
+#         formatted_results = []
+        
+#         documents = raw_results.get('documents', [])
+#         distances = raw_results.get('distances', [])
+#         metadatas = raw_results.get('metadatas', [])
+        
+#         # Check if we got results
+#         if not documents:
+#             return []
+        
+#         for i in range(len(documents)):
+#             distance = distances[i] if i < len(distances) else float('inf')
+            
+#             # Convert L2 distance to similarity score (0-1 range)
+#             # L2 distance can be any positive number, so we use exponential decay
+#             # Lower distance = higher similarity
+#             # similarity = e^(-distance)
+#             # Or use: similarity = 1 / (1 + distance)
+#             similarity = 1.0 / (1.0 + distance)
+            
+#             # Apply similarity threshold
+#             if similarity < min_similarity:
+#                 continue
+            
+#             formatted_results.append({
+#                 'content': documents[i],
+#                 'metadata': metadatas[i] if i < len(metadatas) else {},
+#                 'similarity': similarity,
+#                 'distance': distance
+#             })
+        
+#         # Sort by similarity (highest first)
+#         formatted_results.sort(key=lambda x: x['similarity'], reverse=True)
+        
+#         return formatted_results
     
-    section_results = retriever.retrieve_by_project_type(test_project)
-    print(f"\nRetrieved examples for {len(section_results)} sections")
-    for section, chunks in section_results.items():
-        print(f"- {section}: {len(chunks)} chunks")
+#     def retrieve_with_context(
+#         self,
+#         query: str,
+#         n_results: int = 5,
+#         context_window: int = 1
+#     ) -> List[Dict]:
+#         """
+#         Retrieve chunks with surrounding context
+        
+#         Args:
+#             query: Query string
+#             n_results: Number of results to return
+#             context_window: Number of chunks before/after to include
+            
+#         Returns:
+#             List of results with expanded context
+#         """
+#         # Get initial results
+#         results = self.retrieve(query, n_results)
+        
+#         # TODO: Implement context expansion by fetching neighboring chunks
+#         # This would require storing chunk sequence information in metadata
+        
+#         return results
+
+# """
+# Retriever - Retrieve relevant context from the vector store
+# """
+# from typing import List, Dict, Optional
+# from .vector_store import VectorStore
+
+# class Retriever:
+#     """Retrieves relevant documents from the vector store"""
+    
+#     def __init__(self, vector_store: VectorStore):
+#         """
+#         Initialize the retriever
+        
+#         Args:
+#             vector_store: VectorStore instance
+#         """
+#         self.vector_store = vector_store
+    
+#     def retrieve(
+#         self,
+#         query: str,
+#         n_results: int = 5,
+#         min_similarity: float = 0.5,
+#         filter_metadata: Optional[Dict] = None
+#     ) -> List[Dict]:
+#         """
+#         Retrieve relevant documents for a query
+        
+#         Args:
+#             query: Query string
+#             n_results: Number of results to return
+#             min_similarity: Minimum similarity threshold (0-1)
+#             filter_metadata: Optional metadata filters
+            
+#         Returns:
+#             List of relevant documents with metadata
+#         """
+#         # Query vector store
+#         results = self.vector_store.query(
+#             query_text=query,
+#             n_results=n_results,
+#             filter_metadata=filter_metadata
+#         )
+        
+#         # Convert distances to similarities (cosine distance to similarity)
+#         documents = []
+#         for i, (doc, distance, metadata) in enumerate(zip(
+#             results['documents'],
+#             results['distances'],
+#             results['metadatas']
+#         )):
+#             similarity = 1 - distance  # Convert distance to similarity
+            
+#             if similarity >= min_similarity:
+#                 documents.append({
+#                     'content': doc,
+#                     'similarity': similarity,
+#                     'metadata': metadata or {},
+#                     'rank': i + 1
+#                 })
+        
+#         return documents
+    
+#     def retrieve_by_type(
+#         self,
+#         query: str,
+#         doc_type: str,
+#         n_results: int = 3
+#     ) -> List[Dict]:
+#         """
+#         Retrieve documents filtered by type
+        
+#         Args:
+#             query: Query string
+#             doc_type: Document type filter (e.g., 'standard', 'report')
+#             n_results: Number of results
+            
+#         Returns:
+#             Filtered documents
+#         """
+#         return self.retrieve(
+#             query=query,
+#             n_results=n_results,
+#             filter_metadata={'type': doc_type}
+#         )

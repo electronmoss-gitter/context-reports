@@ -6,9 +6,17 @@ import os
 import sys
 from pathlib import Path
 
-# Add backend to path
+# Set working directory to backend
 backend_path = Path(__file__).parent / "backend"
+os.chdir(backend_path)  # ✅ Change to backend directory
+
+# Suppress telemetry
+os.environ["ANONYMIZED_TELEMETRY"] = "false"
+os.environ["CHROMA_TELEMETRY"] = "false"
+
+# Add backend to path
 sys.path.insert(0, str(backend_path))
+
 
 def check_environment():
     """Check if environment is set up correctly"""
@@ -28,25 +36,26 @@ def check_environment():
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key or api_key == "your_api_key_here":
         print("❌ Anthropic API key not set!")
-        print("   Edit .env and add your API key: ANTHROPIC_API_KEY=sk-ant-...")
+        print("   Edit backend/.env and add your API key: ANTHROPIC_API_KEY=sk-ant-...")
         return False
     
     print("✅ Environment configured")
     return True
+
 
 def check_vector_store():
     """Check if vector store has data"""
     print("\nChecking vector store...")
     
     from app.rag.vector_store import VectorStore
-    vector_store = VectorStore()
+    vector_store = VectorStore()  # Will use ./chroma_db from backend directory
     stats = vector_store.get_stats()
     
     chunk_count = stats.get("total_chunks", 0)
     if chunk_count == 0:
         print(f"❌ Vector store is empty (0 chunks)")
         print("   Add reports to backend/data/historical_reports/")
-        print("   Then run: python -m app.ingestion.ingest_all")
+        print("   Then run: cd backend && python -m app.ingestion.ingest_all")
         return False
     
     print(f"✅ Vector store ready ({chunk_count} chunks)")
@@ -54,12 +63,22 @@ def check_vector_store():
     print(f"   Voltage levels: {stats.get('voltage_levels', {})}")
     return True
 
+
 def test_retrieval():
     """Test RAG retrieval"""
     print("\nTesting RAG retrieval...")
     
+    from app.rag.vector_store import VectorStore
     from app.rag.retriever import Retriever
-    retriever = Retriever()
+
+    vector_store = VectorStore()
+
+    # Skip if empty
+    if vector_store.get_collection_count() == 0:
+        print("⚠️  Skipping retrieval test (no data in vector store)")
+        return False
+
+    retriever = Retriever(vector_store)  
     
     test_query = "touch potential calculations for substation"
     results = retriever.retrieve(test_query, n_results=3)
@@ -68,10 +87,12 @@ def test_retrieval():
         print("❌ No results found")
         return False
     
+    top = results[0]
     print(f"✅ Found {len(results)} relevant chunks")
-    print(f"\nTop result (similarity: {results[0]['similarity_score']:.3f}):")
-    print(f"   {results[0]['text'][:150]}...")
+    print(f"\nTop result (similarity: {top['similarity']:.3f}):")
+    print(f"   {top['content'][:150]}...")
     return True
+
 
 def test_validation():
     """Test input validation"""
@@ -80,11 +101,29 @@ def test_validation():
     from app.generation.validator import InputValidator
     import json
     
-    # Load example input
-    example_file = Path(__file__).parent / "examples" / "input_data.json"
-    if not example_file.exists():
+    # Look for example input in multiple locations
+    possible_paths = [
+        Path("examples/input_data.json"),  # Relative to backend/
+        Path("test_data/inputs/input_data.json"),
+        backend_path / "examples" / "input_data.json",
+        backend_path / "test_data" / "inputs" / "input_data.json"
+    ]
+    
+    example_file = None
+    for path in possible_paths:
+        if path.exists():
+            example_file = path
+            break
+    
+    if not example_file:
         print("❌ Example input file not found")
+        print("   Searched locations:")
+        for p in possible_paths:
+            print(f"   - {p}")
+        print("\n   Create: backend/examples/input_data.json")
         return False
+    
+    print(f"Loading: {example_file}")
     
     with open(example_file) as f:
         test_data = json.load(f)
@@ -96,11 +135,14 @@ def test_validation():
     print(f"   Completeness: {result['completeness_score']:.1%}")
     
     if result['errors']:
-        print(f"   Errors: {len(result['errors'])}")
+        print(f"   ⚠️  Errors: {len(result['errors'])}")
+        for error in result['errors'][:3]:  # Show first 3
+            print(f"      - {error}")
     if result['warnings']:
-        print(f"   Warnings: {len(result['warnings'])}")
+        print(f"   ⚠️  Warnings: {len(result['warnings'])}")
     
-    return True
+    return result['validation_status'] != 'fail'
+
 
 def show_next_steps():
     """Show what to do next"""
@@ -121,7 +163,7 @@ def show_next_steps():
     print("   Orchestrate: validation → calculations → RAG → LLM → output")
     
     print("\n4. BUILD DOCX FORMATTER")
-    print("   Create: backend/app/formatting/docx_builder.py")
+    print("   Create: backend/app/generation/docx_builder.py")
     print("   Format: Generated text → professional DOCX report")
     
     print("\n5. TEST END-TO-END")
@@ -132,10 +174,14 @@ def show_next_steps():
     print("\nSee MVP_STATUS.md for detailed implementation guide!")
     print("="*60 + "\n")
 
+
 def main():
     print("="*60)
     print("EARTHING REPORT GENERATOR - MVP QUICK START")
     print("="*60 + "\n")
+    
+    print(f"Working directory: {os.getcwd()}")
+    print(f"ChromaDB will be at: {Path('chroma_db').absolute()}\n")
     
     # Run checks
     checks = [
@@ -162,11 +208,14 @@ def main():
     
     show_next_steps()
 
+
 if __name__ == "__main__":
     try:
         main()
     except Exception as e:
         print(f"\n❌ Error: {e}")
+        import traceback
+        traceback.print_exc()
         print("\nMake sure you've installed dependencies:")
         print("  cd backend && pip install -r requirements.txt")
         sys.exit(1)

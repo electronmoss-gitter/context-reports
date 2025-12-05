@@ -6,6 +6,9 @@ from typing import List, Union
 import numpy as np
 import os
 
+# Import global config
+from app.config import EMBEDDING_MODEL
+
 class Embedder:
     """Generate embeddings using local sentence-transformers model"""
     
@@ -18,13 +21,18 @@ class Embedder:
                        Default: 'sentence-transformers/all-mpnet-base-v2'
                        (384 dimensions, good balance of speed and quality)
         """
-        if model_name is None:
-            model_name = os.getenv("EMBEDDING_MODEL", "sentence-transformers/all-mpnet-base-v2")
-        
-        print(f"Loading embedding model: {model_name}")
-        self.model = SentenceTransformer(model_name)
-        self.embedding_dimension = self.model.get_sentence_embedding_dimension()
-        print(f"Model loaded. Embedding dimension: {self.embedding_dimension}")
+        self._model = None
+        self.model_name = model_name or EMBEDDING_MODEL  # Use global config if not provided
+    
+    @property
+    def model(self):
+        """Lazy load model"""
+        if self._model is None:
+            print(f"Loading embedding model: {self.model_name}")
+            self._model = SentenceTransformer(self.model_name)
+            dim = self._model.get_sentence_embedding_dimension()
+            print(f"✅ Model loaded. Embedding dimension: {dim}")
+        return self._model
     
     def embed_text(self, text: str) -> List[float]:
         """
@@ -39,25 +47,52 @@ class Embedder:
         embedding = self.model.encode(text, convert_to_numpy=True)
         return embedding.tolist()
     
-    def embed_texts(self, texts: List[str], batch_size: int = 32, show_progress: bool = True) -> List[List[float]]:
+    def embed_texts(
+        self, 
+        texts: List[str], 
+        show_progress: bool = True,
+        batch_size: int = 32
+    ) -> np.ndarray:
         """
-        Generate embeddings for multiple texts (batched for efficiency)
+        Generate embeddings for a list of texts
         
         Args:
-            texts: List of input texts
-            batch_size: Number of texts to process at once
+            texts: List of text strings
             show_progress: Show progress bar
+            batch_size: Number of texts to process at once
             
         Returns:
-            List of embedding vectors
+            NumPy array of embeddings
         """
-        embeddings = self.model.encode(
+        if not texts:
+            return np.array([])
+        
+        return self.model.encode(
             texts,
-            batch_size=batch_size,
             show_progress_bar=show_progress,
+            batch_size=batch_size,
             convert_to_numpy=True
         )
-        return embeddings.tolist()
+
+    # def embed_texts(self, texts: List[str], batch_size: int = 32, show_progress: bool = True) -> List[List[float]]:
+    #     """
+    #     Generate embeddings for multiple texts (batched for efficiency)
+        
+    #     Args:
+    #         texts: List of input texts
+    #         batch_size: Number of texts to process at once
+    #         show_progress: Show progress bar
+            
+    #     Returns:
+    #         List of embedding vectors
+    #     """
+    #     embeddings = self.model.encode(
+    #         texts,
+    #         batch_size=batch_size,
+    #         show_progress_bar=show_progress,
+    #         convert_to_numpy=True
+    #     )
+    #     return embeddings.tolist()
     
     def embed_query(self, query: str) -> List[float]:
         """

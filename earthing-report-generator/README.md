@@ -1,8 +1,4 @@
-
-
-
-
-### Current Module: Earthing System Report Generator
+# Current Module: Earthing System Report Generator
 
 The first implementation focuses on electrical earthing system reports for substations and solar farms, compliant with Australian standards (AS/NZS 3000, AS/NZS 61936.1).
 

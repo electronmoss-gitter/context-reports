@@ -1,31 +1,271 @@
 {
-  "project_name": "Example 33kV Substation Earthing Study",
-  "client_name": "Example Energy Corporation",
-  "site_address": "123 Industrial Drive, Brisbane QLD 4000",
-  "project_number": "ES-2024-001",
-  "engineer_name": "John Smith, CPEng",
-  
-  "voltage_level": "33kV",
-  "fault_current_symmetrical": 25.0,
-  "fault_current_asymmetrical": 31.25,
-  "fault_clearance_time": 0.5,
-  "transformer_rating": "20MVA",
-  
-  "soil_resistivity_measurements": [
-    {"depth": 1.0, "resistivity": 150.0},
-    {"depth": 3.0, "resistivity": 200.0},
-    {"depth": 5.0, "resistivity": 180.0},
-    {"depth": 10.0, "resistivity": 220.0}
-  ],
-  "soil_model_type": "two_layer",
-  "site_length": 50.0,
-  "site_width": 40.0,
-  
-  "target_grid_resistance": 1.0,
-  "touch_potential_limit": 650.0,
-  "step_potential_limit": 1800.0,
-  "earth_conductor_size": "70mm2",
-  
-  "project_type": "substation",
-  "special_requirements": "Site has high water table. Corrosion protection required for earth electrodes."
+  "project_info": {
+    "project_name": "Sunnybank 33kV Distribution Substation",
+    "project_number": "ES-2024-033",
+    "location": "Sunnybank, Queensland, Australia",
+    "client": "Energy Queensland",
+    "date": "2024-12-05",
+    "prepared_by": "Senior Electrical Engineer",
+    "reviewed_by": "Principal Engineer",
+    "description": "Design and analysis of earthing system for 33kV distribution substation"
+  },
+  "site_data": {
+    "soil_resistivity": {
+      "measurements": [
+        {
+          "depth": "0-2m",
+          "resistivity": 150,
+          "method": "Wenner four-probe",
+          "date": "2024-10-15"
+        },
+        {
+          "depth": "2-5m",
+          "resistivity": 280,
+          "method": "Wenner four-probe",
+          "date": "2024-10-15"
+        },
+        {
+          "depth": "5-10m",
+          "resistivity": 450,
+          "method": "Wenner four-probe",
+          "date": "2024-10-15"
+        }
+      ],
+      "average_resistivity": 250.0,
+      "soil_type": "Sandy clay",
+      "moisture_condition": "Dry",
+      "test_date": "2024-10-15",
+      "test_standard": "IEEE Std 81-2012"
+    },
+    "site_conditions": {
+      "terrain": "Flat",
+      "water_table_depth": 8.5,
+      "water_table_unit": "m",
+      "environmental_factors": "Rural area, occasional flooding risk",
+      "vegetation": "Grassland",
+      "accessibility": "Good vehicle access",
+      "space_constraints": "None identified"
+    },
+    "climate": {
+      "annual_rainfall": 600,
+      "rainfall_unit": "mm",
+      "frost_risk": false,
+      "freeze_thaw_cycles": "Minimal"
+    }
+  },
+  "electrical_system": {
+    "voltage_level": "33kV",
+    "system_type": "distribution_substation",
+    "fault_current": {
+      "three_phase": 12.5,
+      "three_phase_unit": "kA",
+      "single_phase_to_ground": 8.2,
+      "single_phase_unit": "kA",
+      "duration": 1.0,
+      "duration_unit": "s"
+    },
+    "protection_coordination": {
+      "main_protection": "Distance relay",
+      "backup_protection": "Overcurrent relay",
+      "earth_fault_protection": "Restricted earth fault"
+    },
+    "equipment": [
+      {
+        "id": "TR-01",
+        "type": "Transformer",
+        "rating": "10MVA",
+        "voltage": "33/11kV",
+        "impedance": "8%",
+        "quantity": 1,
+        "cooling": "ONAN",
+        "earthed_neutral": true
+      },
+      {
+        "id": "CB-01",
+        "type": "Circuit Breaker",
+        "rating": "630A",
+        "voltage": "33kV",
+        "breaking_capacity": "25kA",
+        "quantity": 3,
+        "earthed_mechanism": true
+      },
+      {
+        "id": "SG-01",
+        "type": "Switchgear",
+        "rating": "400A",
+        "voltage": "11kV",
+        "quantity": 6,
+        "earthed_frame": true
+      },
+      {
+        "id": "LA-01",
+        "type": "Lightning Arrester",
+        "voltage": "33kV",
+        "quantity": 3,
+        "earthing_required": true
+      }
+    ]
+  },
+  "earthing_design": {
+    "design_philosophy": "Combined mesh and rod electrode system",
+    "grid_configuration": {
+      "type": "Rectangular mesh with supplementary electrodes",
+      "area": 1575.0,
+      "area_unit": "m²",
+      "length": 52.5,
+      "width": 30.0,
+      "mesh_spacing_x": 5,
+      "mesh_spacing_y": 5,
+      "mesh_spacing_unit": "m",
+      "conductor_type": "Bare copper",
+      "conductor_size": 95,
+      "conductor_size_unit": "mm²",
+      "burial_depth": 0.6,
+      "burial_depth_unit": "m",
+      "total_length": 568.0,
+      "total_length_unit": "m",
+      "perimeter_length": 165.0,
+      "perimeter_length_unit": "m"
+    },
+    "supplementary_electrodes": {
+      "type": "Vertical rods",
+      "material": "Copper-clad steel",
+      "length": 3.0,
+      "length_unit": "m",
+      "diameter": 16,
+      "diameter_unit": "mm",
+      "quantity": 12,
+      "spacing": 10.0,
+      "spacing_unit": "m",
+      "installation_method": "Driven to refusal or depth",
+      "additional_rods": [
+        {
+          "type": "Deep bores",
+          "length": 10.0,
+          "length_unit": "m",
+          "diameter": 20,
+          "diameter_unit": "mm",
+          "quantity": 4,
+          "backfill": "Bentonite/carbon compound"
+        }
+      ]
+    },
+    "surface_treatment": {
+      "type": "Crushed rock",
+      "thickness": 0.1,
+      "thickness_unit": "m",
+      "resistivity": 3000.0,
+      "resistivity_unit": "Ω·m",
+      "extent": "Over entire grid area",
+      "purpose": "Step and touch potential reduction"
+    },
+    "connections": {
+      "transformer_neutral": {
+        "connected": true,
+        "connection_type": "Direct",
+        "resistance": 0.1,
+        "resistance_unit": "Ω"
+      },
+      "equipment_frames": {
+        "connected": true,
+        "connection_method": "Multiple paths",
+        "conductor_size": 50,
+        "conductor_size_unit": "mm²"
+      },
+      "down_conductors": {
+        "quantity": 4,
+        "size": 50,
+        "size_unit": "mm²",
+        "material": "Copper",
+        "spacing": 13.0,
+        "spacing_unit": "m"
+      }
+    }
+  },
+  "standards_compliance": {
+    "primary_standards": [
+      "IEEE Std 80-2000 (Safety Related to Electrical Substations)",
+      "IEEE Std 81-2012 (Measurement of Earth Resistivity)"
+    ],
+    "regional_standards": [
+      "AS/NZS 3000:2018 (Electrical Installations - Wiring Rules)",
+      "AS/NZS 3001:2018 (Installation Code - Electrical Installations in Buildings)",
+      "AS 4871 (Electrical Equipment in Hazardous (Classified) Areas)"
+    ],
+    "utility_standards": [
+      "Energy Queensland Standard - Earthing Design Requirements",
+      "AEMO Earth Fault Levels Guideline"
+    ]
+  },
+  "calculation_requirements": {
+    "grid_resistance": {
+      "calculate": true,
+      "method": "Schwarz method",
+      "target_resistance": 0.5,
+      "target_resistance_unit": "Ω",
+      "acceptable_tolerance": 0.1
+    },
+    "gpr_analysis": {
+      "calculate": true,
+      "method": "IEEE Std 80-2000",
+      "include_transient": true,
+      "include_frequency_dependent": false
+    },
+    "touch_potential": {
+      "calculate": true,
+      "method": "IEEE Std 80-2000",
+      "body_resistance": 1000,
+      "body_resistance_unit": "Ω",
+      "contact_resistance": 0.0,
+      "contact_resistance_unit": "Ω",
+      "duration": 1.0,
+      "duration_unit": "s"
+    },
+    "step_potential": {
+      "calculate": true,
+      "method": "IEEE Std 80-2000",
+      "body_resistance": 1000,
+      "body_resistance_unit": "Ω",
+      "stride_length": 1.0,
+      "stride_length_unit": "m",
+      "duration": 1.0,
+      "duration_unit": "s"
+    },
+    "mesh_voltage": {
+      "calculate": true,
+      "location": "Worst case at grid corners"
+    },
+    "conductor_sizing": {
+      "calculate": true,
+      "method": "Thermal limit based on fault current",
+      "holding_current": true,
+      "melting_point": 1084.0,
+      "melting_point_unit": "°C",
+      "temperature_limit": 400,
+      "temperature_limit_unit": "°C"
+    }
+  },
+  "safety_requirements": {
+    "hazard_analysis": true,
+    "arc_flash_hazard": true,
+    "blast_hazard": false,
+    "safe_work_method": "Lockout/Tagout (LOTO)",
+    "incident_energy_limit": 20.0,
+    "incident_energy_unit": "cal/cm²"
+  },
+  "maintenance_plan": {
+    "inspection_interval": 5,
+    "inspection_interval_unit": "years",
+    "testing_frequency": "10 years or after major modifications",
+    "record_keeping": true,
+    "continuity_testing": true,
+    "resistance_testing": true
+  },
+  "environmental_impact": {
+    "copper_content": 25.0,
+    "copper_unit": "tonnes",
+    "recycling_plan": "Copper conductor recyclable",
+    "environmental_assessment_required": false,
+    "contamination_risk": "None identified"
+  }
 }
